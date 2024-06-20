@@ -1,49 +1,27 @@
 package com.example.gamingserverapp.model;
 
+import java.util.HashSet;
+import java.util.Set;
 // import javax.persistence.*; // for Spring Boot 2
 import jakarta.persistence.*; // for Spring Boot 3
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "username"),
+                @UniqueConstraint(columnNames = "email")
+        })
+
 public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
-    @Column(name = "username")
-    private String username;
-
-    @Column(name = "first name")
-    private String firstName;
-
-    @Column(name = "last name")
-    private String lastName;
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean isActive) {
-        this.active = isActive;
-    }
-
-    @Column(name = "active")
-    private boolean active;
-
-    public User() {
-
-    }
-
-    public User(String username, String firstName, String lastName, boolean active) {
-        this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.active = active;
-    }
-
-    public long getId() {
+    public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -54,25 +32,58 @@ public class User {
         this.username = username;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getEmail() {
+        return email;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getPassword() {
+        return password;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    @Override
-    public String toString() {
-        return "User [id=" + id + ", username=" + username + ", first_name=" + firstName + ", last_name=" + lastName + ", active=" + active + "]";
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank
+    @Size(max = 20)
+    private String username;
+
+    @NotBlank
+    @Size(max = 50)
+    @Email
+    private String email;
+
+    @NotBlank
+    @Size(max = 120)
+    private String password;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
+
+    public User() {
+    }
+
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
     }
 }
 

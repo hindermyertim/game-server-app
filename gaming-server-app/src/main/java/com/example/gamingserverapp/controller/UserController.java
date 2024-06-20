@@ -1,3 +1,4 @@
+/*
 package com.example.gamingserverapp.controller;
 
 import java.util.ArrayList;
@@ -111,4 +112,4 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-}
+}*/

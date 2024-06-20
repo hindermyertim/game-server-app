@@ -59,3 +59,4 @@ build/
 hs_err_pid*
 
 .m2/
+/gaming-server-app/src/main/resources/config/application.properties
