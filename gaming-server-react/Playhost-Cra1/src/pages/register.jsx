@@ -66,17 +66,6 @@ const GlobalStyles = createGlobalStyle`
 `;
 
 const Home = () => {
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const loader = document.getElementById('mainpreloader');
-            if (loader)
-                setTimeout(() => {
-                    loader.classList.add("fadeOut");
-                    loader.style.display = 'none';
-                }, 600)
-        }
-    }, []);
-
     const form = useRef();
     const checkBtn = useRef();
 
@@ -129,6 +118,17 @@ const Home = () => {
             );
         }
     };
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const loader = document.getElementById('mainpreloader');
+            if (loader)
+                setTimeout(() => {
+                    loader.classList.add("fadeOut");
+                    loader.style.display = 'none';
+                }, 600)
+        }
+    }, []);
 
     return (
         <>

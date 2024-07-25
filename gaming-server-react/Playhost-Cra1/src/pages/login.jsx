@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+
 import { Helmet } from 'react-helmet-async';
 import { Parallax } from "react-parallax";
 import { Link } from 'react-router-dom';
@@ -7,6 +8,13 @@ import Preloader from '../layout/preloader';
 import Footer from '../section-pages/footer';
 import ScrollToTopBtn from '../layout/ScrollToTop';
 import { createGlobalStyle } from 'styled-components';
+
+////////////////////////
+import { useNavigate } from 'react-router-dom';
+import Form from "react-validation/build/form";
+import Input from "react-validation/build/input";
+import CheckButton from "react-validation/build/button";
+import AuthService from "../services/auth.service";
 
 const image1 ="./img/background/2.webp";
 
@@ -19,7 +27,68 @@ const GlobalStyles = createGlobalStyle`
   }
 `;
 
-export default function Home() {
+const required = (value) => {
+    if (!value) {
+        return (
+            <div className="alert alert-danger" role="alert">
+                This field is required!
+            </div>
+        );
+    }
+};
+
+const Home = () => {
+  let navigate = useNavigate();
+
+  const form = useRef();
+  const checkBtn = useRef();
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const onChangeUsername = (e) => {
+      const username = e.target.value;
+      setUsername(username);
+  };
+
+  const onChangePassword = (e) => {
+      const password = e.target.value;
+      setPassword(password);
+  };
+
+  const handleLogin = (e) => {
+      e.preventDefault();
+
+      setMessage("");
+      setLoading(true);
+
+      form.current.validateAll();
+
+      if (checkBtn.current.context._errors.length === 0) {
+          AuthService.login(username, password).then(
+              () => {
+                  navigate("/");
+                  window.location.reload();
+              },
+              (error) => {
+                  const resMessage =
+                      (error.response &&
+                          error.response.data &&
+                          error.response.data.message) ||
+                      error.message ||
+                      error.toString();
+
+                  setLoading(false);
+                  setMessage(resMessage);
+              }
+          );
+      } else {
+          setLoading(false);
+      }
+  };
+
   useEffect(() => {
       if (typeof window !== 'undefined') {
           const loader = document.getElementById('mainpreloader');
@@ -29,13 +98,14 @@ export default function Home() {
             loader.style.display = 'none';
           }, 600)
       }
-    }, []);
+  }, []);
+
   return (
     <>
     {/* HEAD */}
     <Helmet>
       <link rel="icon" href="./img/icon.png" />
-      <title>Playhost - Game Hosting Website Template</title>
+      <title>Critter Hosting.game</title>
     </Helmet>
 
     <GlobalStyles/>
@@ -65,27 +135,49 @@ export default function Home() {
                         </div>
 
                         <div className="text-center">
-                            <h4>ASSSSSSSS</h4>
+                            <h4>Login</h4>
                         </div>
                         <div className="spacer-10"></div>
-                        <form id="form_register" className="form-border">
+                        <Form onSubmit={handleLogin} ref={form}>
                             <div className="field-set">
                                 <label>Username or email</label>
-                                <input type='text' name='name' id='name' className="form-control"/>
+                                <Input
+                                    type="text"
+                                    className="form-control"
+                                    name="username"
+                                    value={username}
+                                    onChange={onChangeUsername}
+                                    validations={[required]}
+                                />
                             </div>
                             <div className="field-set">
                                 <label>Password</label>
-                                <input type='text' name='password' id='password' className="form-control"/>
+                                <Input
+                                    type="password"
+                                    className="form-control"
+                                    name="password"
+                                    value={password}
+                                    onChange={onChangePassword}
+                                    validations={[required]}
+                                />
                             </div>
-                            <div className="field-set">
-                                <input type="checkbox" checked id="html" name="fav_language"/>
-                                <label><span className="op-5">&nbsp;Remember me</span></label><br/>
-                            </div>
+                            <CheckButton style={{ display: "none" }} ref={checkBtn} />
                             <div className="spacer-20"></div>
-                            <div id="submit">
-                                <input id="send_message" value="Sign In" className="btn-main btn-fullwidth rounded-3" />
-                            </div>
-                        </form>
+                            <button className="btn btn-primary btn-block" disabled={loading}>
+                                {loading && (
+                                    <span className="spinner-border spinner-border-sm"></span>
+                                )}
+                                <span>Login</span>
+                            </button>
+
+                            {message && (
+                                <div className="form-group">
+                                    <div className="alert alert-danger" role="alert">
+                                        {message}
+                                    </div>
+                                </div>
+                            )}
+                        </Form>
                         <div className="title-line">Or&nbsp;login&nbsp;up&nbsp;with</div>
                         <div className="row g-2">
                             <div className="col-lg-6">
@@ -111,3 +203,5 @@ export default function Home() {
     </>
   )
 }
+
+export default Home;
